@@ -1,9 +1,9 @@
-const character = document.getElementById("character");
+const girl = document.getElementById("girl");
 const phones = document.querySelectorAll(".phone");
 let activePhone = null;
 let timer = null;
 
-// Helper function to start ringing a random phone
+// Function to randomly select a phone to start ringing
 function startRinging() {
     if (activePhone) return;
 
@@ -22,33 +22,33 @@ function startRinging() {
     }, 3000); // 3 seconds to pick up the phone
 }
 
-// Move character function
+// Function to move the girl character
 function moveCharacter(event) {
     if (!activePhone) return;
 
     const phoneRect = activePhone.getBoundingClientRect();
-    const characterRect = character.getBoundingClientRect();
+    const girlRect = girl.getBoundingClientRect();
 
     switch(event.key) {
         case "ArrowUp":
-            character.style.top = `${character.offsetTop - 50}px`;
+            if (girl.offsetTop > 0) girl.style.top = `${girl.offsetTop - 50}px`;
             break;
         case "ArrowDown":
-            character.style.top = `${character.offsetTop + 50}px`;
+            if (girl.offsetTop < 550) girl.style.top = `${girl.offsetTop + 50}px`;
             break;
         case "ArrowLeft":
-            character.style.left = `${character.offsetLeft - 50}px`;
+            if (girl.offsetLeft > 0) girl.style.left = `${girl.offsetLeft - 50}px`;
             break;
         case "ArrowRight":
-            character.style.left = `${character.offsetLeft + 50}px`;
+            if (girl.offsetLeft < 550) girl.style.left = `${girl.offsetLeft + 50}px`;
             break;
     }
 
-    // Check if character reaches the ringing phone
-    if (characterRect.left < phoneRect.right &&
-        characterRect.right > phoneRect.left &&
-        characterRect.top < phoneRect.bottom &&
-        characterRect.bottom > phoneRect.top) {
+    // Check if the character reaches the ringing phone
+    if (girlRect.left < phoneRect.right &&
+        girlRect.right > phoneRect.left &&
+        girlRect.top < phoneRect.bottom &&
+        girlRect.bottom > phoneRect.top) {
             activePhone.classList.remove("ringing");
             activePhone = null;
             clearTimeout(timer);
