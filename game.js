@@ -1,3 +1,8 @@
+document.addEventListener("DOMContentLoaded", function() {
+    console.log("JavaScript loaded and DOM fully parsed");
+    // Your existing game code here
+});
+
 const girl = document.getElementById("girl");
 const phone = document.getElementById("phone1");
 
