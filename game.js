@@ -1,124 +1,63 @@
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
+const character = document.getElementById("character");
+const phones = document.querySelectorAll(".phone");
+let activePhone = null;
+let timer = null;
 
-// Set canvas dimensions
-canvas.width = 400;
-canvas.height = 600;
+// Helper function to start ringing a random phone
+function startRinging() {
+    if (activePhone) return;
 
-// Basket properties
-const basket = {
-    x: canvas.width / 2 - 30,
-    y: canvas.height - 30,
-    width: 60,
-    height: 10,
-    dx: 5
-};
+    const randomPhone = phones[Math.floor(Math.random() * phones.length)];
+    randomPhone.classList.add("ringing");
+    activePhone = randomPhone;
 
-// Ball properties
-const ball = {
-    x: canvas.width / 2,
-    y: 0,
-    radius: 10,
-    dy: 2
-};
+    // Start a timer for the ringing phone
+    timer = setTimeout(() => {
+        if (activePhone) {
+            activePhone.classList.remove("ringing");
+            activePhone.classList.add("missed");
+            activePhone = null;
+            startRinging();
+        }
+    }, 3000); // 3 seconds to pick up the phone
+}
 
-let rightPressed = false;
-let leftPressed = false;
-let score = 0;
-let gameOver = false;
+// Move character function
+function moveCharacter(event) {
+    if (!activePhone) return;
 
-// Event listeners for key presses
-document.addEventListener('keydown', keyDownHandler);
-document.addEventListener('keyup', keyUpHandler);
+    const phoneRect = activePhone.getBoundingClientRect();
+    const characterRect = character.getBoundingClientRect();
 
-function keyDownHandler(e) {
-    if (e.key === 'Right' || e.key === 'ArrowRight') {
-        rightPressed = true;
-    } else if (e.key === 'Left' || e.key === 'ArrowLeft') {
-        leftPressed = true;
+    switch(event.key) {
+        case "ArrowUp":
+            character.style.top = `${character.offsetTop - 50}px`;
+            break;
+        case "ArrowDown":
+            character.style.top = `${character.offsetTop + 50}px`;
+            break;
+        case "ArrowLeft":
+            character.style.left = `${character.offsetLeft - 50}px`;
+            break;
+        case "ArrowRight":
+            character.style.left = `${character.offsetLeft + 50}px`;
+            break;
+    }
+
+    // Check if character reaches the ringing phone
+    if (characterRect.left < phoneRect.right &&
+        characterRect.right > phoneRect.left &&
+        characterRect.top < phoneRect.bottom &&
+        characterRect.bottom > phoneRect.top) {
+            activePhone.classList.remove("ringing");
+            activePhone = null;
+            clearTimeout(timer);
+            startRinging();
     }
 }
 
-function keyUpHandler(e) {
-    if (e.key === 'Right' || e.key === 'ArrowRight') {
-        rightPressed = false;
-    } else if (e.key === 'Left' || e.key === 'ArrowLeft') {
-        leftPressed = false;
-    }
-}
+// Event listener for character movement
+window.addEventListener("keydown", moveCharacter);
 
-// Draw the basket
-function drawBasket() {
-    ctx.beginPath();
-    ctx.rect(basket.x, basket.y, basket.width, basket.height);
-    ctx.fillStyle = '#0095DD';
-    ctx.fill();
-    ctx.closePath();
-}
-
-// Draw the ball
-function drawBall() {
-    ctx.beginPath();
-    ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-    ctx.fillStyle = '#0095DD';
-    ctx.fill();
-    ctx.closePath();
-}
-
-// Draw the score
-function drawScore() {
-    ctx.font = '16px Arial';
-    ctx.fillStyle = '#0095DD';
-    ctx.fillText('Score: ' + score, 8, 20);
-}
-
-// Update game elements
-function update() {
-    if (rightPressed && basket.x < canvas.width - basket.width) {
-        basket.x += basket.dx;
-    } else if (leftPressed && basket.x > 0) {
-        basket.x -= basket.dx;
-    }
-
-    ball.y += ball.dy;
-
-    // Check if the ball hits the basket
-    if (
-        ball.y + ball.radius > basket.y &&
-        ball.x > basket.x &&
-        ball.x < basket.x + basket.width
-    ) {
-        ball.y = 0;
-        ball.x = Math.random() * (canvas.width - ball.radius * 2) + ball.radius;
-        score++;
-        ball.dy += 0.5;  // Increase speed after each catch
-    }
-
-    // Check if the ball hits the ground
-    if (ball.y + ball.radius > canvas.height) {
-        gameOver = true;
-    }
-}
-
-// Draw game elements
-function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawBasket();
-    drawBall();
-    drawScore();
-}
-
-// Game loop
-function gameLoop() {
-    if (!gameOver) {
-        update();
-        draw();
-        requestAnimationFrame(gameLoop);
-    } else {
-        ctx.font = '30px Arial';
-        ctx.fillStyle = '#0095DD';
-        ctx.fillText('Game Over', canvas.width / 2 - 70, canvas.height / 2);
-    }
-}
-
-gameLoop();
+// Start the game
+startRinging();
